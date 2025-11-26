@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "commonjs",
+		"jsx": "react-jsx",
+		"outDir": "./dist",
+		"strict": true,
+		"noEmit": true,
+		"lib": ["ESNext"],
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"noUnusedLocals": true
+	},
+	"include": ["src/**/*"]
+}

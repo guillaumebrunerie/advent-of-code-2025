@@ -40,30 +40,36 @@ export const RemotionRoot = () => {
 			/>
 			{allDays.map(({ Short, Full, Partial, day }, i) => (
 				<Fragment key={i}>
-					<Composition
-						id={`Day${day}Short`}
-						component={Short}
-						durationInFrames={Short.duration * fps}
-						fps={fps}
-						width={widthShorts}
-						height={heightShorts}
-					/>
-					<Composition
-						id={`Day${day}Full`}
-						component={Full}
-						durationInFrames={Full.duration * fps}
-						fps={fps}
-						width={width}
-						height={height}
-					/>
-					<Composition
-						id={`Day${day}Partial`}
-						component={Partial}
-						durationInFrames={Partial.duration * fps}
-						fps={fps}
-						width={width}
-						height={height}
-					/>
+					{Short && (
+						<Composition
+							id={`Day${day}Short`}
+							component={Short}
+							durationInFrames={Short.duration * fps}
+							fps={fps}
+							width={widthShorts}
+							height={heightShorts}
+						/>
+					)}
+					{Full && (
+						<Composition
+							id={`Day${day}Full`}
+							component={Full}
+							durationInFrames={Full.duration * fps}
+							fps={fps}
+							width={width}
+							height={height}
+						/>
+					)}
+					{Partial && (
+						<Composition
+							id={`Day${day}Partial`}
+							component={Partial}
+							durationInFrames={Partial.duration * fps}
+							fps={fps}
+							width={width}
+							height={height}
+						/>
+					)}
 				</Fragment>
 			))}
 			<Composition

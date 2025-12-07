@@ -1,4 +1,5 @@
 import { Fragment } from "react/jsx-runtime";
+import { z } from "zod";
 
 import { Composition } from "remotion";
 
@@ -13,7 +14,6 @@ import {
 	height,
 	heightShorts,
 	introDuration,
-	introDurationShorts,
 	outroDuration,
 	width,
 	widthShorts,
@@ -23,14 +23,6 @@ export const RemotionRoot = () => {
 	return (
 		<>
 			<Composition
-				id="IntroShorts"
-				component={IntroShorts}
-				durationInFrames={introDurationShorts * fpsShorts}
-				fps={fpsShorts}
-				width={widthShorts}
-				height={heightShorts}
-			/>
-			<Composition
 				id="Intro"
 				component={Intro}
 				durationInFrames={introDuration * fps}
@@ -38,39 +30,22 @@ export const RemotionRoot = () => {
 				width={width}
 				height={height}
 			/>
-			{allDays.map(({ Short, Full, Partial, day }, i) => (
-				<Fragment key={i}>
-					{Short && (
-						<Composition
-							id={`Day${day}Short`}
-							component={Short}
-							durationInFrames={Short.duration * fps}
-							fps={fps}
-							width={widthShorts}
-							height={heightShorts}
-						/>
-					)}
-					{Full && (
-						<Composition
-							id={`Day${day}Full`}
-							component={Full}
-							durationInFrames={Full.duration * fps}
-							fps={fps}
-							width={width}
-							height={height}
-						/>
-					)}
-					{Partial && (
-						<Composition
-							id={`Day${day}Partial`}
-							component={Partial}
-							durationInFrames={Partial.duration * fps}
-							fps={fps}
-							width={width}
-							height={height}
-						/>
-					)}
-				</Fragment>
+			{allDays.map(({ Component, day }) => (
+				<Composition
+					id={`Day${day}`}
+					component={Component}
+					durationInFrames={dayDuration * fps}
+					fps={fps}
+					schema={z.object({
+						videoType: z.enum(["short", "full video"]),
+					})}
+					calculateMetadata={({ props }) =>
+						props.videoType === "short" ?
+							{ width: widthShorts, height: heightShorts }
+						:	{ width, height }
+					}
+					defaultProps={{ videoType: "short" }}
+				/>
 			))}
 			<Composition
 				id="FullVideo"

@@ -3,7 +3,7 @@ import { interpolate } from "remotion";
 
 import { DayWrapperFull } from "../FullVideo/DayWrapperFull";
 import { DayWrapperPartial } from "../FullVideo/DayWrapperPartial";
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayWrapper } from "../Shorts/DayWrapper";
 import { Translate } from "../common/Translate";
 import { useCurrentTime } from "../common/useCurrentTime";
 import { clamp, height, heightShorts } from "../constants";
@@ -189,7 +189,7 @@ const Day1Pages = ({
 
 export const Day1Short = () => {
 	return (
-		<DayWrapperShorts
+		<DayWrapper
 			day={1}
 			title="Trebuchet?!"
 			dayDuration={16}
@@ -203,7 +203,7 @@ export const Day1Short = () => {
 				marginTop={30}
 				marginBottom={150}
 			/>
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
 Day1Short.duration = 16;

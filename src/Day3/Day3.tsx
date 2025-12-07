@@ -1,11 +1,11 @@
 import { memo, useMemo } from "react";
-import { interpolate } from "remotion";
+import { interpolate, useVideoConfig } from "remotion";
 
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayProps, DayWrapper, useVideoType } from "../Shorts/DayWrapper";
 import { Rectangle } from "../common/Rectangle";
 import { Translate } from "../common/Translate";
 import { useCurrentTime } from "../common/useCurrentTime";
-import { clamp, heightShorts, widthShorts } from "../constants";
+import { clamp } from "../constants";
 import { raw } from "./raw";
 
 // const raw = `
@@ -61,12 +61,16 @@ const Line = memo(
 		line,
 		indices,
 		highlight,
+		size,
 	}: {
 		y: number;
 		line: string;
 		indices: number[];
 		highlight: boolean;
+		size: number;
 	}) => {
+		const widthX = (size * 2) / 3;
+		const videoType = useVideoType();
 		return line.split("").map((c, j) => {
 			const green = indices.includes(j);
 			const doHighlight = highlight && green;
@@ -74,25 +78,26 @@ const Line = memo(
 				<Rectangle
 					key={j}
 					cx
-					x={j * width}
+					x={j * widthX}
 					y={
 						y -
-						(doHighlight ? 60
-						: green ? 15
+						(doHighlight ? size * 6
+						: green ? size * 1.2
 						: 0)
 					}
 					style={{
 						fontSize:
-							doHighlight ? 100
-							: green ? 30
+							doHighlight ? size * 10
+							: green ? size * 3
 							: size,
 						color:
 							doHighlight ? "#0F0"
 							: green ? "#0C0"
 							: "#FFF",
-						zIndex: green ? 10 + j : 1,
+						zIndex: green ? 10 : 1,
 						fontWeight: green ? "bold" : "normal",
-						WebkitTextStroke: doHighlight ? "1px black" : undefined,
+						textShadow:
+							doHighlight ? `0 0 ${size / 4}px black` : undefined,
 					}}
 				>
 					{c}
@@ -103,19 +108,20 @@ const Line = memo(
 );
 
 const emptyArray: number[] = [];
-const size = 10;
-const verticalSpacing = 15;
-const width = 20 / 3;
+
 const All = memo(
 	({
 		data,
 		lineNo,
 		part1Lines,
+		size,
 	}: {
 		data: ReturnType<typeof solve>;
 		lineNo: number;
 		part1Lines: number;
+		size: number;
 	}) => {
+		const verticalSpacing = size * 1.5;
 		return data.map(({ line, i1, i2 }, i) => (
 			<Line
 				key={i}
@@ -129,17 +135,22 @@ const All = memo(
 					:	emptyArray
 				}
 				highlight={i == lineNo}
+				size={size}
 			/>
 		));
 	},
 );
 
-export const Day3Short = () => {
+export const Day3 = ({ videoType }: DayProps) => {
 	const data = useMemo(solve, []);
+	const { width, height } = useVideoConfig();
 	const time = useCurrentTime();
 	const lineNo = Math.floor(time * 8);
 	const part1Lines = 8 * 8;
-	const xOffset = widthShorts / 2 - (data[0].line.length * width) / 2;
+	const size = videoType == "short" ? 10 : 20;
+	const widthX = (size * 2) / 3;
+	const verticalSpacing = size * 1.5;
+	const xOffset = width / 2 - (data[0].line.length * widthX) / 2;
 	// console.log(
 	// 	data
 	// 		.slice(0, part1Lines)
@@ -153,18 +164,24 @@ export const Day3Short = () => {
 	// 		"\n",
 	// );
 	return (
-		<DayWrapperShorts day={3} title="Lobby" dayDuration={16}>
+		<DayWrapper videoType={videoType} day={3} title="Lobby">
 			<Translate
 				dx={xOffset}
-				dy={-lineNo * 15 + heightShorts / 2}
+				dy={
+					-lineNo * verticalSpacing + height / 2 - verticalSpacing / 2
+				}
 				style={{ transform: "scale(1)" }}
 			>
-				<All data={data} lineNo={lineNo} part1Lines={part1Lines} />
+				<All
+					data={data}
+					lineNo={lineNo}
+					part1Lines={part1Lines}
+					size={size}
+				/>
 			</Translate>
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
-Day3Short.duration = 16;
 
 /**
 setcps(1)

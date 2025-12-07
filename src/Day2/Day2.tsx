@@ -1,11 +1,10 @@
 import { useMemo } from "react";
-import { Sequence, interpolate, useVideoConfig } from "remotion";
+import { Sequence, useVideoConfig } from "remotion";
 
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayProps, DayWrapper, useVideoType } from "../Shorts/DayWrapper";
 import { Rectangle } from "../common/Rectangle";
 import { range } from "../common/range";
 import { useCurrentTime } from "../common/useCurrentTime";
-import { widthShorts } from "../constants";
 import { raw } from "./raw";
 
 // const raw =
@@ -79,13 +78,15 @@ const Page = ({
 		: ids.length < 4 ? 0.25
 		: ids.length < 8 ? 0.125
 		: 0.125 / 2;
-	const timeOffset = timeStart;
 	const currentValue = Math.floor(
 		data.start + time * (data.end - data.start),
 	);
-	const y1 = 250;
-	const y2 = 330;
-	const y3 = 450;
+	const { width } = useVideoConfig();
+	const videoType = useVideoType();
+	const y1 = videoType == "short" ? 250 : 100;
+	const y2 = videoType == "short" ? 330 : 180;
+	const y3 = videoType == "short" ? 450 : 300;
+	const visibleLines = videoType == "short" ? 15 : 9;
 	return (
 		<>
 			<Rectangle cx y={y1} style={{ fontSize: 60, color: "#FFF" }}>
@@ -105,19 +106,21 @@ const Page = ({
 						str.length * widthDigit +
 						(repetitions - 1) * widthSpace;
 					const barSpacing = halfStr.length * widthDigit + widthSpace;
-					// if (time < timeStart + i * timeOffset) {
 					if (id > currentValue) {
 						return null;
 					}
 					const lines = ids.filter(
 						({ id }) => id < currentValue,
 					).length;
-					const yOffset = lines <= 15 ? 0 : (lines - 15) * 80;
-					if (i < lines - 15) {
+					const yOffset =
+						lines <= visibleLines ? 0 : (lines - visibleLines) * 80;
+					if (i < lines - visibleLines) {
 						return null;
 					}
-					const visualI = lines <= 15 ? i : i - (lines - 15);
-					const opacity = 1 / (1 + Math.exp(1 * (visualI - 13)));
+					const visualI =
+						lines <= visibleLines ? i : i - (lines - visibleLines);
+					const opacity =
+						1 / (1 + Math.exp(1 * (visualI - visibleLines + 2)));
 					return (
 						<>
 							<Rectangle
@@ -138,7 +141,7 @@ const Page = ({
 									key={j}
 									cx
 									x={
-										widthShorts / 2 -
+										width / 2 -
 										widthNumber / 2 +
 										j * barSpacing -
 										widthSpace / 2
@@ -159,7 +162,7 @@ const Page = ({
 	);
 };
 
-export const Day2Short = () => {
+export const Day2 = ({ videoType }: DayProps) => {
 	const { fps } = useVideoConfig();
 	const data = useMemo(solve, []);
 	console.log(
@@ -177,7 +180,7 @@ export const Day2Short = () => {
 					return (
 						`<[~@${pauseDuration} ` +
 						ids
-							.map(({ id, repetitions, time }, j) => {
+							.map(({ repetitions, time }, j) => {
 								const duration =
 									(j == ids.length - 1 ?
 										1
@@ -192,17 +195,15 @@ export const Day2Short = () => {
 			'\n>`).sound("sine").attack(0).decay(0.1);',
 	);
 	return (
-		<DayWrapperShorts day={2} title="Gift Shop" dayDuration={16}>
+		<DayWrapper videoType={videoType} day={2} title="Gift Shop">
 			{data.map((d, i) => (
 				<Sequence from={i * fps} durationInFrames={1 * fps}>
 					<Page data={d} isPart1={i < 8} />
 				</Sequence>
 			))}
-			{/* {data.map((d, i) => <Sequence></Sequence>)} */}
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
-Day2Short.duration = 16;
 
 /**
 setcps(1)

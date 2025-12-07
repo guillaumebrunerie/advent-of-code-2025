@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useVideoConfig } from "remotion";
 
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayProps, DayWrapper } from "../Shorts/DayWrapper";
 import { Canvas } from "../common/Canvas";
 import { useCurrentTime } from "../common/useCurrentTime";
-import { heightShorts, widthShorts } from "../constants";
 import { raw } from "./raw";
 
 // const raw = `
@@ -75,13 +74,12 @@ const solve = () => {
 	return { lines, allBeams, allQBeams };
 };
 
-const size = 15;
-const getXPos = (lines: string[], x: number) =>
-	x * size - (lines[0].length * size) / 2 + widthShorts / 2;
-
-export const Day7Short = () => {
+export const Day7 = ({ videoType }: DayProps) => {
 	const { lines, allBeams, allQBeams } = useMemo(solve, []);
 	const time = useCurrentTime();
+	const { width, height } = useVideoConfig();
+	const getXPos = (x: number) =>
+		x * size - (lines[0].length * size) / 2 + width / 2;
 	useEffect(() => {
 		const audioInner = lines
 			.filter((_, i) => i % 2 == 0)
@@ -143,6 +141,7 @@ export const Day7Short = () => {
 			"\n>`).fast(8).gain(0.9)";
 		console.log(audio);
 	}, [lines, allBeams, allQBeams]);
+	const size = videoType == "short" ? 15 : 10;
 	const draw = useCallback(
 		(ctx: CanvasRenderingContext2D) => {
 			const maxY = (time % 8) * 16;
@@ -157,7 +156,7 @@ export const Day7Short = () => {
 						ctx.fillStyle = y <= maxY - 1 / 2 ? "#0F0" : "#080";
 						ctx.beginPath();
 						ctx.arc(
-							getXPos(lines, x) + size / 2,
+							getXPos(x) + size / 2,
 							y * size + 2,
 							4,
 							0,
@@ -191,15 +190,12 @@ export const Day7Short = () => {
 						ctx.beginPath();
 						const overflow =
 							Math.floor(y) == Math.floor(maxY) ? maxY % 1 : 1;
-						ctx.moveTo(getXPos(lines, beam) + size / 2, y * size);
+						ctx.moveTo(getXPos(beam) + size / 2, y * size);
 						ctx.lineTo(
-							getXPos(lines, beam) + size / 2,
+							getXPos(beam) + size / 2,
 							(y + overflow) * size,
 						);
-						ctx.moveTo(
-							getXPos(lines, beam) + size / 2,
-							(y + 1) * size,
-						);
+						ctx.moveTo(getXPos(beam) + size / 2, (y + 1) * size);
 						if (y + 1 <= maxY) {
 							const overflow =
 								Math.floor(y + 1) == Math.floor(maxY) ?
@@ -207,24 +203,20 @@ export const Day7Short = () => {
 								:	1;
 							if (lines[y + 1]?.[beam] == "^") {
 								ctx.lineTo(
-									getXPos(lines, beam) -
-										size * overflow +
-										size / 2,
+									getXPos(beam) - size * overflow + size / 2,
 									(y + 1 + overflow) * size,
 								);
 								ctx.moveTo(
-									getXPos(lines, beam) + size / 2,
+									getXPos(beam) + size / 2,
 									(y + 1) * size,
 								);
 								ctx.lineTo(
-									getXPos(lines, beam) +
-										size * overflow +
-										size / 2,
+									getXPos(beam) + size * overflow + size / 2,
 									(y + 1 + overflow) * size,
 								);
 							} else {
 								ctx.lineTo(
-									getXPos(lines, beam) + size / 2,
+									getXPos(beam) + size / 2,
 									(y + 1 + overflow) * size,
 								);
 							}
@@ -237,12 +229,11 @@ export const Day7Short = () => {
 		[lines, allBeams, time],
 	);
 	return (
-		<DayWrapperShorts day={7} title="Laboratories" dayDuration={16}>
+		<DayWrapper videoType={videoType} day={7} title="Laboratories">
 			<Canvas draw={draw} />
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
-Day7Short.duration = 16;
 
 /**
 setcps(1)

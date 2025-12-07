@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from "react";
+import { useVideoConfig } from "remotion";
 
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayProps, DayWrapper } from "../Shorts/DayWrapper";
 import { Rectangle } from "../common/Rectangle";
 import { range } from "../common/range";
 import { useCurrentTime } from "../common/useCurrentTime";
-import { heightShorts, widthShorts } from "../constants";
 import { raw } from "./raw";
 
 // const raw = `
@@ -128,15 +128,15 @@ const getIdxEnd = (i: number, row: number, base = getIdx(i) - 1) => {
 
 const charSize = 60;
 
-const getCenter = (i: number) => {
+const getCenter = (i: number, width: number) => {
 	const idx1 = getIdx(i);
 	const idx2 = getIdx(i + 1);
-	return 510 - ((idx1 + idx2 - 2) / 2) * charSize;
+	return width / 2 - ((idx1 + idx2 - 1) / 2) * charSize;
 };
 
-const getLeftH = (i: number, row: number) => {
+const getLeftH = (i: number, row: number, width: number) => {
 	const idx = getIdxStart(i, row);
-	return getCenter(i) + idx * charSize;
+	return getCenter(i, width) + idx * charSize;
 };
 
 const getWidth = (i: number, row: number) => {
@@ -145,40 +145,61 @@ const getWidth = (i: number, row: number) => {
 	return (idx2 - idx1 - 1) * charSize;
 };
 
-const getLeftV = (i: number, col: number) => {
+const getLeftV = (i: number, col: number, width: number) => {
 	const idx = getIdx(i);
-	return getCenter(i) + (idx + col) * charSize + 3;
+	return getCenter(i, width) + (idx + col) * charSize + 3;
 };
 
-const getTopV = (i: number, col: number, base = 0) => {
+const getTopV = (
+	i: number,
+	col: number,
+	height: number,
+	yOffset: number,
+	base = 0,
+) => {
 	if (lines[base][getIdx(i) + col] != " ") {
-		return heightShorts / 2 - 230 + base * 125;
+		return height / 2 - 290 + yOffset + base * 125;
 	} else {
-		return getTopV(i, col, base + 1);
+		return getTopV(i, col, height, yOffset, base + 1);
 	}
 };
 
-const getBotV = (i: number, col: number, base = 3) => {
+const getBotV = (
+	i: number,
+	col: number,
+	height: number,
+	yOffset: number,
+	base = 3,
+) => {
 	if (lines[base][getIdx(i) + col] != " ") {
-		return heightShorts / 2 - 230 + (base + 1) * 125;
+		return height / 2 - 290 + yOffset + (base + 1) * 125;
 	} else {
-		return getBotV(i, col, base - 1);
+		return getBotV(i, col, height, yOffset, base - 1);
 	}
 };
 
-const getHeight = (i: number, col: number) => {
-	const idx1 = getTopV(i, col);
-	const idx2 = getBotV(i, col);
+const getHeight = (i: number, col: number, height: number) => {
+	const idx1 = getTopV(i, col, height, 0);
+	const idx2 = getBotV(i, col, height, 0);
 	return idx2 - idx1 - 37;
 };
 
 const getCount = (i: number) => getIdx(i + 1) - getIdx(i) - 1;
 
-const HighlightH = ({ i, row }: { i: number; row: number }) => {
+const HighlightH = ({
+	i,
+	row,
+	yOffset,
+}: {
+	i: number;
+	row: number;
+	yOffset: number;
+}) => {
+	const { width, height } = useVideoConfig();
 	return (
 		<Rectangle
-			x={getLeftH(i, row)}
-			y={heightShorts / 2 - 230 + row * 125}
+			x={getLeftH(i, row, width)}
+			y={height / 2 - 290 + yOffset + row * 125}
 			w={getWidth(i, row)}
 			h={90}
 			style={{ background: "#444" }}
@@ -186,19 +207,28 @@ const HighlightH = ({ i, row }: { i: number; row: number }) => {
 	);
 };
 
-const HighlightV = ({ i, col }: { i: number; col: number }) => {
+const HighlightV = ({
+	i,
+	col,
+	yOffset,
+}: {
+	i: number;
+	col: number;
+	yOffset: number;
+}) => {
+	const { width, height } = useVideoConfig();
 	return (
 		<Rectangle
-			x={getLeftV(i, col)}
-			y={getTopV(i, col)}
+			x={getLeftV(i, col, width)}
+			y={getTopV(i, col, height, yOffset)}
 			w={charSize - 6}
-			h={getHeight(i, col)}
+			h={getHeight(i, col, height)}
 			style={{ background: "#444" }}
 		/>
 	);
 };
 
-export const Day6Short = () => {
+export const Day6 = ({ videoType }: DayProps) => {
 	const { values1, values2 } = useMemo(solve, []);
 	const time = useCurrentTime();
 	const i = time < 8 ? Math.floor(time) : 999 - Math.floor(time - 8);
@@ -206,6 +236,7 @@ export const Day6Short = () => {
 	const p2 = (getIdx(i + 1) / maxLineWidth) * 100;
 	const value = time < 8 ? values1[i] : values2[i];
 	const count = getCount(i);
+	const { width, height } = useVideoConfig();
 	useEffect(() => {
 		const f = (n: number) => Math.floor(Math.log(n) * 1.5);
 		const innerAudio1 = values1.slice(0, 8).map(({ values, result }) => {
@@ -231,21 +262,30 @@ export const Day6Short = () => {
 				">\n`).scale('C3:minor').s('triangle').n(3);",
 		);
 	}, [values1, values2]);
+	const yOffset = videoType == "short" ? 60 : -60;
 	return (
-		<DayWrapperShorts day={6} title="Trash Compactor" dayDuration={16}>
+		<DayWrapper videoType={videoType} day={6} title="Trash Compactor">
 			<Rectangle
-				x={widthShorts / 2 - 10}
-				y={heightShorts / 2 - 10}
+				x={width / 2 - 10}
+				y={height / 2 - 10}
 				w={20}
 				h={20}
 				style={{ background: "red", opacity: 0 }}
 			/>
 			{time < 8 && (
 				<>
-					{time % 1 >= 1 / 8 && <HighlightH i={i} row={0} />}
-					{time % 1 >= 2 / 8 && <HighlightH i={i} row={1} />}
-					{time % 1 >= 3 / 8 && <HighlightH i={i} row={2} />}
-					{time % 1 >= 4 / 8 && <HighlightH i={i} row={3} />}
+					{time % 1 >= 1 / 8 && (
+						<HighlightH i={i} row={0} yOffset={yOffset} />
+					)}
+					{time % 1 >= 2 / 8 && (
+						<HighlightH i={i} row={1} yOffset={yOffset} />
+					)}
+					{time % 1 >= 3 / 8 && (
+						<HighlightH i={i} row={2} yOffset={yOffset} />
+					)}
+					{time % 1 >= 4 / 8 && (
+						<HighlightH i={i} row={3} yOffset={yOffset} />
+					)}
 				</>
 			)}
 			{time >= 8 &&
@@ -253,15 +293,20 @@ export const Day6Short = () => {
 					(_, col) =>
 						time % 1 >=
 							1 / 8 + (1 / 2 / count) * (count - col - 1) && (
-							<HighlightV key={col} i={i} col={col} />
+							<HighlightV
+								key={col}
+								i={i}
+								col={col}
+								yOffset={yOffset}
+							/>
 						),
 				)}
 			<pre
 				style={{
 					fontFamily: "inherit",
 					position: "absolute",
-					left: getCenter(i),
-					top: heightShorts / 2 + 60,
+					left: getCenter(i, width),
+					top: height / 2 + yOffset,
 					transform: "translate(0, -50%)",
 					fontSize: 100,
 					margin: 0,
@@ -277,8 +322,8 @@ export const Day6Short = () => {
 				style={{
 					fontFamily: "inherit",
 					position: "absolute",
-					left: getCenter(i),
-					top: heightShorts / 2 + 60,
+					left: getCenter(i, width),
+					top: height / 2 + yOffset,
 					transform: "translate(0, -50%)",
 					fontSize: 100,
 					margin: 0,
@@ -293,8 +338,8 @@ export const Day6Short = () => {
 					style={{
 						fontFamily: "inherit",
 						position: "absolute",
-						left: widthShorts / 2,
-						top: heightShorts / 2 + 400,
+						left: width / 2,
+						top: height / 2 + yOffset + 340,
 						transform: "translate(-50%, 0)",
 						fontSize: 100,
 						margin: 0,
@@ -304,10 +349,9 @@ export const Day6Short = () => {
 					{value.result}
 				</pre>
 			)}
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
-Day6Short.duration = 16;
 
 /**
 setcps(1)

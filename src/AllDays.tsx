@@ -1,55 +1,28 @@
 import { ReactNode } from "react";
 
-import {
-	// Day1Full, Day1Partial,
-	Day1Short,
-} from "./Day1/Day1";
-import { Day2Short } from "./Day2/Day2";
-import { Day3Short } from "./Day3/Day3";
-import { Day4Short } from "./Day4/Day4";
-import { Day5Short } from "./Day5/Day5";
-import { Day6Short } from "./Day6/Day6";
-import { Day7Short } from "./Day7/Day7";
-
-type Video = {
-	(): ReactNode;
-	duration: number;
-};
+import { Day1 } from "./Day1/Day1";
+import { Day2 } from "./Day2/Day2";
+import { Day3 } from "./Day3/Day3";
+import { Day4 } from "./Day4/Day4";
+import { Day5 } from "./Day5/Day5";
+import { Day6 } from "./Day6/Day6";
+import { Day7 } from "./Day7/Day7";
 
 type Day = {
-	Short?: Video;
-	Full?: Video;
-	Partial?: Video;
+	Component: ({
+		videoType,
+	}: {
+		videoType: "short" | "full video";
+	}) => ReactNode;
 	day: number;
 };
 
 export const allDays: Day[] = [
-	{
-		Short: Day1Short, // , Full: Day1Full, Partial: Day1Partial
-		day: 1,
-	},
-	{
-		Short: Day2Short, // , Full: Day1Full, Partial: Day1Partial
-		day: 2,
-	},
-	{
-		Short: Day3Short, // , Full: Day1Full, Partial: Day1Partial
-		day: 3,
-	},
-	{
-		Short: Day4Short, // , Full: Day1Full, Partial: Day1Partial
-		day: 4,
-	},
-	{
-		Short: Day5Short, // , Full: Day1Full, Partial: Day1Partial
-		day: 5,
-	},
-	{
-		Short: Day6Short, // , Full: Day1Full, Partial: Day1Partial
-		day: 6,
-	},
-	{
-		Short: Day7Short, // , Full: Day1Full, Partial: Day1Partial
-		day: 7,
-	},
+	{ Component: Day1, day: 1 },
+	{ Component: Day2, day: 2 },
+	{ Component: Day3, day: 3 },
+	{ Component: Day4, day: 4 },
+	{ Component: Day5, day: 5 },
+	{ Component: Day6, day: 6 },
+	{ Component: Day7, day: 7 },
 ];

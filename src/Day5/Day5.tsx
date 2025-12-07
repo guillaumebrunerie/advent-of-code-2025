@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
-import { interpolate } from "remotion";
+import { interpolate, useVideoConfig } from "remotion";
 
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayProps, DayWrapper } from "../Shorts/DayWrapper";
 import { useCurrentTime } from "../common/useCurrentTime";
-import { heightShorts, widthShorts } from "../constants";
 import { raw } from "./raw";
 
 // const raw = `
@@ -64,21 +63,21 @@ const solve = () => {
 	return { ranges, ids, finalRanges: union3(ranges) };
 };
 
-const interval = [0, 1700];
-
-export const Day5Short = () => {
+export const Day5 = ({ videoType }: DayProps) => {
 	const { ranges, ids, finalRanges } = useMemo(solve, []);
+	const { width, height } = useVideoConfig();
 	const time = useCurrentTime();
 	const ref = useRef<HTMLCanvasElement>(null);
+	const interval = [0, (1700 / 1920) * height];
+
 	useEffect(() => {
 		const ctx = ref.current?.getContext("2d");
 		if (!ctx) {
 			return;
 		}
 		ctx.fillStyle = "transparent";
-		ctx.clearRect(0, 0, widthShorts, heightShorts);
+		ctx.clearRect(0, 0, width, height);
 
-		// ctx.beginPath();
 		ids.forEach(({ id, fresh }, i) => {
 			if (time > 8) {
 				return;
@@ -95,14 +94,14 @@ export const Day5Short = () => {
 					:	"#040"
 				: time < 8 ? "#444"
 				: "transparent";
-			ctx.fillRect(0, y - 1.5, widthShorts, 3);
+			ctx.fillRect(0, y - 1.5, width, 3);
 		});
 
 		ranges.forEach(({ start, end }, i) => {
 			const x = interpolate(
 				i,
 				[0, ranges.length - 1],
-				[200, widthShorts - 200],
+				[200, width - 200],
 			);
 			const y1 = interpolate(
 				start / Math.pow(10, 12),
@@ -129,7 +128,7 @@ export const Day5Short = () => {
 				return;
 			}
 			ctx.fillStyle = wide ? "#0C0" : "#FFF";
-			ctx.fillRect(0, y1, widthShorts, y2 - y1);
+			ctx.fillRect(0, y1, width, y2 - y1);
 		});
 	}, [time, finalRanges, ranges, ids]);
 
@@ -159,17 +158,16 @@ export const Day5Short = () => {
 	}, []);
 
 	return (
-		<DayWrapperShorts day={5} title="Cafeteria" dayDuration={16}>
+		<DayWrapper videoType={videoType} day={5} title="Cafeteria">
 			<canvas
-				width={widthShorts}
-				height={heightShorts}
+				width={width}
+				height={height}
 				ref={ref}
 				style={{ position: "absolute" }}
 			/>
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
-Day5Short.duration = 16;
 
 /**
 

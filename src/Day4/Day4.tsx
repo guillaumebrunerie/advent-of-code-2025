@@ -1,13 +1,13 @@
 import { memo, useEffect, useMemo } from "react";
-import { Easing, interpolate } from "remotion";
+import { Easing, interpolate, useVideoConfig } from "remotion";
 
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayProps, DayWrapper } from "../Shorts/DayWrapper";
 import { Rectangle } from "../common/Rectangle";
 import { Scale } from "../common/Scale";
 import { Translate } from "../common/Translate";
 import { range } from "../common/range";
 import { useCurrentTime } from "../common/useCurrentTime";
-import { clamp, heightShorts, widthShorts } from "../constants";
+import { clamp } from "../constants";
 import { raw } from "./raw";
 
 // const raw = `
@@ -125,8 +125,8 @@ const solve = () => {
 	return { grid1, grids };
 };
 
-const width = 18;
-const height = 18;
+const widthBox = 18;
+const heightBox = 18;
 
 const Char = memo(({ char, time }: { char: string; time?: number }) => {
 	const n = Number(char);
@@ -150,17 +150,18 @@ const Char = memo(({ char, time }: { char: string; time?: number }) => {
 				// outline: char == "@" ? "0.1px solid #CCC" : undefined,
 				border: char == "@" ? `1px solid ${color}` : undefined,
 			}}
-			w={width}
-			h={height}
+			w={widthBox}
+			h={heightBox}
 		></Rectangle>
 	);
 });
 
 const Line = memo(({ line, time }: { line: string[]; time?: number }) => {
+	const { width } = useVideoConfig();
 	return line.map((c, j) => (
 		<Translate
 			key={j}
-			dx={j * width + (widthShorts - line.length * width) / 2}
+			dx={j * widthBox + (width - line.length * widthBox) / 2}
 		>
 			<Char char={c} time={time} />
 		</Translate>
@@ -168,10 +169,11 @@ const Line = memo(({ line, time }: { line: string[]; time?: number }) => {
 });
 
 const Grid = memo(({ grid, time }: { grid: string[][]; time?: number }) => {
+	const { height } = useVideoConfig();
 	return grid.map((line, i) => (
 		<Translate
 			key={i}
-			dy={i * height + (heightShorts - grid.length * height) / 2}
+			dy={i * heightBox + (height - grid.length * heightBox) / 2}
 		>
 			<Line
 				line={line}
@@ -271,7 +273,7 @@ window.copyAudio = () => {
 	navigator.clipboard.writeText(calculateAudio(solve().grids));
 };
 
-export const Day4Short = () => {
+export const Day4 = ({ videoType }: DayProps) => {
 	const { grid1, grids } = useMemo(solve, []);
 	useEffect(() => {
 		const notes = [
@@ -332,22 +334,32 @@ export const Day4Short = () => {
 		}),
 	);
 	console.log();
-	const s = interpolate(time, [8, 15.5], [1, 1 / 3], {
-		...clamp,
-		easing: Easing.out(Easing.poly(5)),
-	});
+	const s = interpolate(
+		time,
+		[8, 15.5],
+		videoType == "short" ? [1, 1 / 3] : [0.8, 0.38],
+		{
+			...clamp,
+			easing: Easing.out(Easing.poly(5)),
+		},
+	);
 	const t =
-		Math.floor(time) + interpolate(time % 1, [0, 1], [0.1, 0.9], clamp);
+		Math.floor(time) +
+		interpolate(
+			time % 1,
+			[0, 1],
+			videoType == "short" ? [0.1, 0.9] : [0.2, 0.8],
+			clamp,
+		);
 	return (
-		<DayWrapperShorts day={4} title="Printing Department" dayDuration={16}>
+		<DayWrapper videoType={videoType} day={4} title="Printing Department">
 			<Scale sx={s} sy={s}>
 				{time < 8 && <Grid grid={grid1} time={t} />}
 				{time > 8 && <Grid grid={grids[i]} />}
 			</Scale>
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
-Day4Short.duration = 16;
 
 /**
 setcps(1)

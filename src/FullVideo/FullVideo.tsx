@@ -12,13 +12,13 @@ export const FullVideo = () => {
 			<Sequence durationInFrames={introDuration * fps}>
 				<Intro />
 			</Sequence>
-			{allDays.map(({ Partial }, i) => (
+			{allDays.map(({ Component }, i) => (
 				<Sequence
 					key={i}
 					from={(introDuration + i * dayDuration) * fps}
 					durationInFrames={dayDuration * fps}
 				>
-					<Partial />
+					<Component videoType="full video" />
 				</Sequence>
 			))}
 			{true && (

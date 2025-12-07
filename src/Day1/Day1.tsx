@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
-import { Easing, interpolate } from "remotion";
+import { Easing, interpolate, useVideoConfig } from "remotion";
 
-import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
+import { DayProps, DayWrapper, useVideoType } from "../Shorts/DayWrapper";
 import { useCurrentTime } from "../common/useCurrentTime";
 import { clamp, heightShorts, widthShorts } from "../constants";
 import { raw } from "./raw";
@@ -127,11 +127,17 @@ const Knob = ({
 };
 
 const Plus = ({ value, startTime }: { value: number; startTime: number }) => {
+	const videoType = useVideoType();
 	const time = useCurrentTime() - startTime;
 	if (time <= 0) {
 		return;
 	}
-	const top = interpolate(time, [0, 1], [550, 300], clamp);
+	const top = interpolate(
+		time,
+		[0, 1],
+		videoType == "short" ? [550, 300] : [100, 0],
+		clamp,
+	);
 	const opacity = interpolate(time, [0, 1], [1, 0], clamp);
 	return (
 		<div
@@ -148,34 +154,8 @@ const Plus = ({ value, startTime }: { value: number; startTime: number }) => {
 	);
 };
 
-export const Day1Short = () => {
+export const Day1 = ({ videoType }: DayProps) => {
 	const data = useMemo(solve, []);
-
-	// data.forEach((d, i) => {
-	// 	if (i < 16) {
-	// 		return;
-	// 	}
-	// 	if (!d.part1) {
-	// 		return;
-	// 	}
-	// 	const before = data.slice(i - 16, i).filter((a) => a.part1).length;
-	// 	if (before < 3) {
-	// 		return;
-	// 	}
-	// 	const afterCount = data
-	// 		.slice(i + 1, i + 16)
-	// 		.filter((a) => a.part2 > 1).length;
-	// 	if (afterCount < 4) {
-	// 		return;
-	// 	}
-	// 	const afterMax = Math.max(
-	// 		...data.slice(i + 1, i + 16).map((a) => a.part2),
-	// 	);
-	// 	if (afterMax > 5) {
-	// 		return;
-	// 	}
-	// 	console.log(i);
-	// });
 
 	const deltaIndex = 1321 + 1 - 16;
 
@@ -233,15 +213,16 @@ export const Day1Short = () => {
 			...clamp,
 		},
 	);
+	const { width, height } = useVideoConfig();
 	return (
-		<DayWrapperShorts
+		<DayWrapper
+			videoType={videoType}
 			day={1}
 			title="Secret Entrance"
-			dayDuration={16}
 			style={{
 				display: "grid",
-				height: heightShorts,
-				width: widthShorts,
+				height,
+				width,
 				placeItems: "center",
 			}}
 		>
@@ -269,10 +250,9 @@ export const Day1Short = () => {
 					);
 				}
 			})}
-		</DayWrapperShorts>
+		</DayWrapper>
 	);
 };
-Day1Short.duration = 16;
 
 /*
 setcps(2)

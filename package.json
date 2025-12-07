@@ -1,7 +1,7 @@
 {
 	"name": "adventofcode2025",
 	"version": "1.0.0",
-	"description": "Visualizations for the Advent of code 2025",
+	"description": "Visualizations for the Advent of Code 2025",
 	"scripts": {
 		"start": "remotion studio",
 		"build": "remotion render AdventOfCode2025 out/AdventOfCode2025.mp4",

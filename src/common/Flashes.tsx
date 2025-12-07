@@ -1,10 +1,4 @@
-import {
-	AbsoluteFill,
-	Easing,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from "remotion";
+import { AbsoluteFill, Easing, interpolate } from "remotion";
 
 import { clamp, white } from "../constants";
 import { useCurrentTime } from "./useCurrentTime";
@@ -12,9 +6,8 @@ import { useCurrentTime } from "./useCurrentTime";
 const attackDuration = 0.04;
 
 export const InitialFlash = () => {
-	const { fps } = useVideoConfig();
-	const frame = useCurrentFrame();
-	const opacity = interpolate(frame / fps, [0, 1], [1, 0], {
+	const time = useCurrentTime();
+	const opacity = interpolate(time, [0, 1], [1, 0], {
 		...clamp,
 		easing: Easing.out(Easing.cubic),
 	});
@@ -22,10 +15,9 @@ export const InitialFlash = () => {
 };
 
 export const FinalFlash = ({ dayDuration }: { dayDuration: number }) => {
-	const { fps } = useVideoConfig();
-	const frame = useCurrentFrame();
+	const time = useCurrentTime();
 	const opacity = interpolate(
-		frame / fps,
+		time,
 		[dayDuration - attackDuration, dayDuration],
 		[0, 1],
 		clamp,
@@ -34,16 +26,15 @@ export const FinalFlash = ({ dayDuration }: { dayDuration: number }) => {
 };
 
 export const MidFlash = ({ dayDuration }: { dayDuration: number }) => {
-	const { fps } = useVideoConfig();
-	const frame = useCurrentFrame();
+	const time = useCurrentTime();
 	const fadeIn = interpolate(
-		frame / fps,
+		time,
 		[dayDuration / 2 - attackDuration, dayDuration / 2],
 		[0, 1],
 		clamp,
 	);
 	const fadeOut = interpolate(
-		frame / fps,
+		time,
 		[dayDuration / 2, dayDuration / 2 + 1],
 		[1, 0],
 		{ ...clamp, easing: Easing.out(Easing.cubic) },

@@ -1,6 +1,6 @@
 import { loadFont } from "@remotion/google-fonts/SourceCodePro";
 
-export const { fontFamily } = loadFont();
+export const { fontFamily } = loadFont("normal", { subsets: ["latin"] });
 
 export const width = 1920;
 export const height = 1080;

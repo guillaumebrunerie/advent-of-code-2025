@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Easing, interpolate } from "remotion";
 
 import { DayWrapperShorts } from "../Shorts/DayWrapperShorts";
@@ -55,7 +55,15 @@ const solve = () => {
 
 // Answer: 980/5961
 
-const Knob = ({ position, blur }: { position: number; blur: number }) => {
+const Knob = ({
+	position,
+	blur,
+	label,
+}: {
+	position: number;
+	blur: number;
+	label: string;
+}) => {
 	const innerSize = 500;
 	const size = 650;
 	const tickLength = 30;
@@ -65,7 +73,7 @@ const Knob = ({ position, blur }: { position: number; blur: number }) => {
 			<div
 				style={{
 					position: "absolute",
-					border: "3px solid #fff",
+					border: "5px solid #fff",
 					borderRadius: "50%",
 					width: innerSize,
 					height: innerSize,
@@ -74,7 +82,7 @@ const Knob = ({ position, blur }: { position: number; blur: number }) => {
 			<div
 				style={{
 					position: "absolute",
-					border: "3px solid #0C0",
+					border: "5px solid #0C0",
 					borderRadius: "50%",
 					width: size,
 					height: size,
@@ -87,8 +95,9 @@ const Knob = ({ position, blur }: { position: number; blur: number }) => {
 						key={i}
 						style={{
 							position: "absolute",
-							border: `2px solid ${i == 50 ? "#FFF" : "#0C08"}`,
-							width: 3,
+							border: `3px solid ${i == 50 ? "#FFF" : "#0C08"}`,
+							width: 0,
+							backgroundColor: i == 50 ? "#FFF" : "#0C08",
 							height: tickLength,
 							transform: `rotate(${(i * 360) / 100}deg) translateY(${distance}px)`,
 						}}
@@ -104,6 +113,15 @@ const Knob = ({ position, blur }: { position: number; blur: number }) => {
 					transform: `rotate(${((position + 50) * 360) / 100}deg) translateY(${(size + innerSize) / 4}px)`,
 				}}
 			/>
+			<div
+				style={{
+					position: "absolute",
+					fontSize: 50,
+					color: "#FFF",
+				}}
+			>
+				{label}
+			</div>
 		</>
 	);
 };
@@ -160,19 +178,51 @@ export const Day1Short = () => {
 	// });
 
 	const deltaIndex = 1321 + 1 - 16;
+
+	useEffect(() => {
+		console.log(
+			data
+				.slice(deltaIndex, deltaIndex + 16)
+				.map((d) => {
+					const n = Math.ceil(d.n / 2);
+					const first = `stepcat(s("cp!${n}").gain(0.02)),`;
+					if (d.part1) {
+						return `stack(${first} s("~!${n - 1} oh").gain(0.5)),`;
+					} else {
+						return first;
+					}
+				})
+				.join("\n") +
+				"\n\n" +
+				data
+					.slice(deltaIndex + 16, deltaIndex + 32)
+					.map((d) => {
+						const n = Math.ceil(d.n / 2);
+						const first = `stepcat(s("cp!${n}").gain(0.02)),`;
+						if (d.part2 > 0) {
+							return `stack(${first} s("[~!${(n - d.part2) / d.part2} oh]!${d.part2}").gain(0.5)),`;
+						} else {
+							return first;
+						}
+					})
+					.join("\n"),
+		);
+	}, [data, deltaIndex]);
+
 	const time = useCurrentTime();
 	const isPart1 = time <= 8;
 	const i = Math.floor(time * 2);
 	const nt = time * 2 - i;
-	const prevPosition = data[i + deltaIndex]?.current;
-	const nextPosition = data[i + 1 + deltaIndex].current;
+	const index = i + deltaIndex;
+	const prevPosition = data[index]?.current;
+	const nextPosition = data[index + 1].current;
 	const position = interpolate(
 		nt,
 		[0.15, 0.85],
 		[prevPosition, nextPosition],
 		{
 			...clamp,
-			easing: Easing.back(1),
+			easing: Easing.linear,
 		},
 	);
 	const blur = interpolate(
@@ -195,16 +245,26 @@ export const Day1Short = () => {
 				placeItems: "center",
 			}}
 		>
-			<Knob position={position} blur={blur} />
-			{data.slice(deltaIndex - 1, deltaIndex + 31).map((d, i) => {
+			<Knob
+				position={position}
+				blur={blur}
+				label={data[index].direction + data[index].n}
+			/>
+			{data.slice(deltaIndex - 1, deltaIndex + 32).map((d, i) => {
 				if (isPart1) {
 					return (
-						d.part1 && <Plus value={1} startTime={i / 2} key={i} />
+						d.part1 && (
+							<Plus value={1} startTime={i / 2 - 1 / 4} key={i} />
+						)
 					);
 				} else {
 					return (
 						d.part2 > 0 && (
-							<Plus value={d.part2} startTime={i / 2} key={i} />
+							<Plus
+								value={d.part2}
+								startTime={i / 2 - 1 / 4}
+								key={i}
+							/>
 						)
 					);
 				}
@@ -213,3 +273,47 @@ export const Day1Short = () => {
 	);
 };
 Day1Short.duration = 16;
+
+/*
+setcps(2)
+
+$: s("lt").gain("<1.5 1>").slow(16)
+
+_$: note("<[0 2]@4>".scale("C:minor")).sound("gm_acoustic_bass").gain(0.1)
+
+$: cat(
+stepcat(s("cp!49").gain(0.02)),
+stepcat(s("cp!28").gain(0.02)),
+stepcat(s("cp!10").gain(0.02)),
+stack(stepcat(s("cp!38").gain(0.02)), s("~!37 oh").gain(0.5)),
+stepcat(s("cp!43").gain(0.02)),
+stepcat(s("cp!393").gain(0.02)),
+stepcat(s("cp!43").gain(0.02)),
+stepcat(s("cp!25").gain(0.02)),
+stepcat(s("cp!33").gain(0.02)),
+stack(stepcat(s("cp!36").gain(0.02)), s("~!35 oh").gain(0.5)),
+stepcat(s("cp!48").gain(0.02)),
+stack(stepcat(s("cp!2").gain(0.02)), s("~!1 oh").gain(0.5)),
+stepcat(s("cp!233").gain(0.02)),
+stack(stepcat(s("cp!18").gain(0.02)), s("~!17 oh").gain(0.5)),
+stepcat(s("cp!31").gain(0.02)),
+stack(stepcat(s("cp!19").gain(0.02)), s("~!18 oh").gain(0.5)),
+
+stepcat(s("cp!31").gain(0.02)),
+stack(stepcat(s("cp!31").gain(0.02)), s("[~!30 oh]!1").gain(0.5)),
+stepcat(s("cp!44").gain(0.02)),
+stepcat(s("cp!37").gain(0.02)),
+stepcat(s("cp!2").gain(0.02)),
+stack(stepcat(s("cp!135").gain(0.02)), s("[~!66.5 oh]!2").gain(0.5)),
+stack(stepcat(s("cp!234").gain(0.02)), s("[~!57.5 oh]!4").gain(0.5)),
+stack(stepcat(s("cp!6").gain(0.02)), s("[~!5 oh]!1").gain(0.5)),
+stepcat(s("cp!40").gain(0.02)),
+stack(stepcat(s("cp!11").gain(0.02)), s("[~!10 oh]!1").gain(0.5)),
+stepcat(s("cp!46").gain(0.02)),
+stepcat(s("cp!20").gain(0.02)),
+stepcat(s("cp!12").gain(0.02)),
+stack(stepcat(s("cp!165").gain(0.02)), s("[~!40.25 oh]!4").gain(0.5)),
+stack(stepcat(s("cp!169").gain(0.02)), s("[~!55.333333333333336 oh]!3").gain(0.5)),
+stack(stepcat(s("cp!169").gain(0.02)), s("[~!41.25 oh]!4").gain(0.5)),
+).compress(.15, .85)
+ */

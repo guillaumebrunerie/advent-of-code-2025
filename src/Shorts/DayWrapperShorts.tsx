@@ -27,7 +27,7 @@ export const DayWrapperShorts = ({
 			<InitialFlash />
 			<MidFlash dayDuration={dayDuration} />
 			<FinalFlash dayDuration={dayDuration} />
-			{/* <Html5Audio src={staticFile(`Day${day}.wav`)} /> */}
+			<Html5Audio src={staticFile(`Day${day}.wav`)} />
 		</Wrapper>
 	);
 };

@@ -32,6 +32,7 @@ export const RemotionRoot = () => {
 			/>
 			{allDays.map(({ Component, day }) => (
 				<Composition
+					key={day}
 					id={`Day${day}`}
 					component={Component}
 					durationInFrames={dayDuration * fps}

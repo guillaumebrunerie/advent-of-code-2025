@@ -141,11 +141,12 @@ export const Day7 = ({ videoType }: DayProps) => {
 			"\n>`).fast(8).gain(0.9)";
 		console.log(audio);
 	}, [lines, allBeams, allQBeams]);
-	const size = videoType == "short" ? 15 : 10;
+	const size = videoType == "short" ? 15 : 8.5;
 	const draw = useCallback(
 		(ctx: CanvasRenderingContext2D) => {
 			const maxY = (time % 8) * 16;
 			const isPart1 = time < 8;
+			const radius = (size * 4) / 15;
 			for (let y = 0; y < lines.length; y++) {
 				for (let x = 0; x < lines[y].length; x++) {
 					const isIsolated = y > 0 && !allBeams[y - 1].includes(x);
@@ -157,8 +158,8 @@ export const Day7 = ({ videoType }: DayProps) => {
 						ctx.beginPath();
 						ctx.arc(
 							getXPos(x) + size / 2,
-							y * size + 2,
-							4,
+							y * size + radius / 2,
+							radius,
 							0,
 							2 * Math.PI,
 							false,
@@ -167,6 +168,7 @@ export const Day7 = ({ videoType }: DayProps) => {
 					}
 				}
 			}
+			const maxOverflow = videoType == "short" ? 0.955 : 1;
 			for (let y = 0; y < lines.length; y++) {
 				ctx.strokeStyle = "#CCC";
 				ctx.lineCap = "round";
@@ -174,7 +176,8 @@ export const Day7 = ({ videoType }: DayProps) => {
 					for (const beam of allBeams[y]) {
 						const count = allQBeams[y].get(beam) ?? 0;
 						ctx.lineWidth =
-							isPart1 ? 3 : Math.log(Math.max(count, 2)) / 2;
+							(size / 15) *
+							(isPart1 ? 3 : Math.log(Math.max(count, 2)) / 2);
 						const color = Math.min(
 							Math.max(
 								0,
@@ -188,8 +191,10 @@ export const Day7 = ({ videoType }: DayProps) => {
 								`#${color1Str}${color1Str}${color1Str}`
 							);
 						ctx.beginPath();
-						const overflow =
-							Math.floor(y) == Math.floor(maxY) ? maxY % 1 : 1;
+						const overflow = Math.min(
+							maxOverflow,
+							Math.floor(y) == Math.floor(maxY) ? maxY % 1 : 1,
+						);
 						ctx.moveTo(getXPos(beam) + size / 2, y * size);
 						ctx.lineTo(
 							getXPos(beam) + size / 2,
@@ -197,10 +202,12 @@ export const Day7 = ({ videoType }: DayProps) => {
 						);
 						ctx.moveTo(getXPos(beam) + size / 2, (y + 1) * size);
 						if (y + 1 <= maxY) {
-							const overflow =
+							const overflow = Math.min(
+								maxOverflow,
 								Math.floor(y + 1) == Math.floor(maxY) ?
 									maxY % 1
-								:	1;
+								:	1,
+							);
 							if (lines[y + 1]?.[beam] == "^") {
 								ctx.lineTo(
 									getXPos(beam) - size * overflow + size / 2,
@@ -226,7 +233,7 @@ export const Day7 = ({ videoType }: DayProps) => {
 				}
 			}
 		},
-		[lines, allBeams, time],
+		[lines, allBeams, time, width, height],
 	);
 	return (
 		<DayWrapper videoType={videoType} day={7} title="Laboratories">

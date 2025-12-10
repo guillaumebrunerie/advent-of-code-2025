@@ -7,4 +7,5 @@ raw.tsx
 # Ignore the output video from Git but not videos you import into src/.
 out
 
+src/Day9/data.json
 public/FullVideo.mp4

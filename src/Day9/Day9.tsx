@@ -3,8 +3,10 @@ import { interpolate, useVideoConfig } from "remotion";
 
 import { DayProps, DayWrapper } from "../Shorts/DayWrapper";
 import { Canvas } from "../common/Canvas";
+import { range } from "../common/range";
 import { useCurrentTime } from "../common/useCurrentTime";
 import { clamp } from "../constants";
+import data from "./data.json";
 import { raw } from "./raw";
 
 // const raw = `
@@ -24,18 +26,25 @@ const solve = () => {
 		.split("\n")
 		.map((line) => {
 			const [x, y] = line.split(",").map(Number);
-			return { x: -x, y };
+			return { x, y };
 		});
 
 	let bestArea = 0;
+	const part1Tries: {
+		p: { x: number; y: number };
+		q: { x: number; y: number };
+		area: number;
+	}[] = [];
 	for (const p of points) {
 		for (const q of points) {
 			const area = Math.abs(p.x - q.x + 1) * Math.abs(p.y - q.y + 1);
+			part1Tries.push({ p, q, area });
 			if (area > bestArea) {
 				bestArea = area;
 			}
 		}
 	}
+	part1Tries.sort((a, b) => b.area - a.area);
 	console.log("Part 1:", bestArea);
 
 	// Part 2
@@ -199,6 +208,11 @@ const solve = () => {
 	console.log(str);
 
 	bestArea = 0;
+	const part2Tries: {
+		p: { x: number; y: number };
+		q: { x: number; y: number };
+		area: number;
+	}[] = [];
 	for (const p of points) {
 		for (const q of points) {
 			const r = { x: p.x, y: q.y };
@@ -212,22 +226,110 @@ const solve = () => {
 			) {
 				continue;
 			}
+			part2Tries.push({ p, q, area });
 			if (area > bestArea) {
 				bestArea = area;
 			}
 		}
 	}
+	part2Tries.sort((a, b) => b.area - a.area);
 
-	// debugger;
 	console.log("Part 2:", bestArea);
+	console.log(JSON.stringify({ points, part1Tries, part2Tries }));
+	return { points, part1Tries, part2Tries };
 };
 
 export const Day9 = ({ videoType }: DayProps) => {
-	const data = useMemo(solve, []);
+	const { points, part1Tries, part2Tries } = data as ReturnType<typeof solve>;
 	const time = useCurrentTime();
 	const { width, height } = useVideoConfig();
 
-	const draw = useCallback((ctx: CanvasRenderingContext2D) => {}, []);
+	useEffect(() => {
+		const part1 =
+			"0 " +
+			range(1, 30)
+				.map((i) => {
+					const idx =
+						(30 - i) * Math.floor((part1Tries.length - 1) / 30);
+					return Math.floor(
+						Math.log(part1Tries[idx].area) * 2 - 30.2,
+					);
+				})
+				.join(" ") +
+			"@3\n";
+		const part2 =
+			range(0, 30)
+				.map((i) => {
+					const idx = (30 - i) * 32;
+					return Math.floor(
+						Math.log(part2Tries[idx].area) * 3 - 30.2 - 18,
+					);
+				})
+				.join(" ") + "@3\n";
+
+		console.log(part1 + "\n" + part2);
+		// const i =
+		// 	Math.ceil(interpolate(time % 8, [0, 7.5], [30, 0], clamp)) *
+		// 		(isPart1 ? Math.floor((tries.length - 1) / 30) : 32);
+	}, [part1Tries]);
+
+	const draw = useCallback(
+		(ctx: CanvasRenderingContext2D) => {
+			const convertPos = ({ x, y }: { x: number; y: number }) => {
+				const size = Math.min(width, height) - 300;
+				return {
+					x: (x / 100000 - 1 / 2) * size + width / 2,
+					y: (y / 100000 - 1 / 2) * size + height / 2,
+				};
+			};
+			const isPart1 = time < 8;
+
+			if (!isPart1) {
+				ctx.strokeStyle = "#FFF";
+				ctx.fillStyle = "#060";
+				ctx.lineWidth = 0;
+				ctx.beginPath();
+				const { x, y } = convertPos(points[points.length - 1]);
+				ctx.moveTo(x, y);
+				for (const point of points) {
+					const { x, y } = convertPos(point);
+					ctx.lineTo(x, y);
+				}
+				ctx.fill();
+			}
+			ctx.fillStyle = "#C00";
+			for (const point of points) {
+				const { x, y } = convertPos(point);
+				ctx.beginPath();
+				ctx.arc(x, y, 2, 0, 2 * Math.PI, false);
+				ctx.fill();
+			}
+
+			const tries = isPart1 ? part1Tries : part2Tries;
+			const i =
+				Math.ceil(interpolate(time % 8, [0, 7.5], [30, 0], clamp)) *
+				(isPart1 ? Math.floor((tries.length - 1) / 30) : 32);
+			ctx.fillStyle = isPart1 ? "#CCC8" : "#CCCC";
+			const p = convertPos(tries[i].p);
+			const q = convertPos(tries[i].q);
+			ctx.fillRect(
+				Math.min(p.x, q.x),
+				Math.min(p.y, q.y),
+				Math.abs(q.x - p.x),
+				Math.abs(q.y - p.y),
+			);
+			ctx.fillStyle = "#C00";
+			for (const point of [p, q]) {
+				const { x, y } = point;
+				ctx.beginPath();
+				ctx.arc(x, y, 10, 0, 2 * Math.PI, false);
+				ctx.fill();
+			}
+
+			// console.log(part1Tries, part2Tries);
+		},
+		[points, time, width, height],
+	);
 
 	return (
 		<DayWrapper videoType={videoType} day={9} title="Movie Theater">

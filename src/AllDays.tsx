@@ -10,6 +10,8 @@ import { Day7 } from "./Day7/Day7";
 import { Day8 } from "./Day8/Day8";
 import { Day9 } from "./Day9/Day9";
 import { Day10 } from "./Day10/Day10";
+import { Day11 } from "./Day11/Day11";
+import { Day12 } from "./Day12/Day12";
 import type { DayProps } from "./Shorts/DayWrapper";
 
 type Day = {
@@ -28,4 +30,6 @@ export const allDays: Day[] = [
 	{ Component: Day8, day: 8 },
 	{ Component: Day9, day: 9 },
 	{ Component: Day10, day: 10 },
+	{ Component: Day11, day: 11 },
+	{ Component: Day12, day: 12 },
 ];

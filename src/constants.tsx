@@ -7,7 +7,7 @@ export const height = 1080;
 export const fps = 60;
 
 export const dayDuration = 16;
-export const introDuration = 6;
+export const introDuration = 7;
 export const outroDuration = 8;
 
 // Shorts

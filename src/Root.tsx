@@ -52,10 +52,7 @@ export const RemotionRoot = () => {
 				id="FullVideo"
 				component={FullVideo}
 				durationInFrames={
-					(introDuration +
-						dayDuration * allDays.length +
-						outroDuration) *
-					fps
+					(introDuration + dayDuration * allDays.length) * fps
 				}
 				fps={fps}
 				width={width}

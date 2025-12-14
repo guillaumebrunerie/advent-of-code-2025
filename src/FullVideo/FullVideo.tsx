@@ -1,9 +1,8 @@
 import { Sequence, useVideoConfig } from "remotion";
 
 import { allDays } from "../AllDays";
-import { dayDuration, introDuration, outroDuration } from "../constants";
+import { dayDuration, introDuration } from "../constants";
 import { Intro } from "./Intro";
-import { Outro } from "./Outro";
 
 export const FullVideo = () => {
 	const { fps } = useVideoConfig();
@@ -21,14 +20,6 @@ export const FullVideo = () => {
 					<Component videoType="full video" />
 				</Sequence>
 			))}
-			{true && (
-				<Sequence
-					from={(introDuration + allDays.length * dayDuration) * fps}
-					durationInFrames={outroDuration * fps}
-				>
-					<Outro />
-				</Sequence>
-			)}
 		</>
 	);
 };

@@ -208,9 +208,9 @@ export const Day2 = ({ videoType }: DayProps) => {
 /**
 setcps(1)
 
-$: s("lt").gain("<1.5 1>").slow(8)
+$: s("lt").gain("<0 0.5>").slow(8)
 
-$: s("bd").gain(0.5)
+$: s("bd").gain("0.4").lpf(3000)
 
 $: note(`<
 <[~@1]>

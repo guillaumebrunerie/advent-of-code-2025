@@ -192,7 +192,7 @@ const makeStars = (videoType: VideoType, width: number, height: number) =>
 		.fill(true)
 		.map((_, i) => {
 			const tMax = 2;
-			const yMax = videoType == "short" ? 100 : 0;
+			const yMax = videoType == "short" ? 100 : 100;
 			const initialY = height + 150;
 			const speed = ((initialY - yMax) * 4) / tMax;
 			const gravity = (2 * speed) / tMax;
@@ -356,7 +356,12 @@ export const Day12 = ({ videoType }: DayProps) => {
 	const opacity = fadeOut;
 
 	return (
-		<DayWrapper videoType={videoType} day={12} title="Christmas Tree Farm">
+		<DayWrapper
+			videoType={videoType}
+			day={12}
+			title="Christmas Tree Farm"
+			skipFinalFlash
+		>
 			{isPart1 && <Canvas draw={draw} />}
 			{!isPart1 &&
 				stars.map((star, i) => {
@@ -399,3 +404,28 @@ export const Day12 = ({ videoType }: DayProps) => {
 		</DayWrapper>
 	);
 };
+
+/**
+setcps(1)
+
+$: s("lt").gain("<0 0.5>").slow(8)
+
+_$: s("<~ sleighbells:6 sleighbells:3 sleighbells:4 sleighbells:1 sleighbells:3 sleighbells:3 sleighbells:4 sleighbells:4 sleighbells:4 sleighbells:4 sleighbells:3 sleighbells:4 sleighbells:6 sleighbells:3 sleighbells:1 sleighbells:4 sleighbells:4 sleighbells:1 sleighbells:4 sleighbells:3 sleighbells:1 sleighbells:6 sleighbells:3 sleighbells:1 ~!7>").fast(4)
+
+_$: stack(n("10").gain(2), n("12")).sound("sine").scale("c2:minor:pentatonic")
+
+$: n(`
+~ [0 1 2 3 4 5 6 7 8 9]@10 20@5
+~ [0 1 2 3 4 5 6 7 8 9 10 11 12 13]@10 6@5
+~ [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]@10 6@5
+~ [0 1 2 3 4 5 6 7 8]@10 20@5
+~ [0 1 2 3 4 5 6 7 8 9 10 11]@10 20@5
+~ [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18]@10 6@5
+~ [0 1 2 3 4 5 6 7 8]@10 20@5
+~ [0 1 2 3 4 5 6 7 8 9 10 11 12 13]@10 6@5
+`).slow(8).scale("c3:minor").sound("triangle").gain("1 0".slow(16))
+
+_$: n(`<1 1 1 1 1 1 1 3 -1 0 1 2 2 2 2 1 1 1 0 0 1 0 0 3>`).fast("4").scale("c6:minor").sound("triangle").decay(0.15)
+
+$: n(`<~ -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 ~!5 15 ~>`).fast("4").scale("c7:chromatic").sound("triangle").decay(0.15).sustain(0.05).release(1.5).gain("0 1".slow(16))
+ */

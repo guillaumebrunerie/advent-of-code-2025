@@ -213,19 +213,27 @@ export const Day11 = ({ videoType }: DayProps) => {
 				);
 				ctx.stroke();
 			};
-			const a = interpolate(time, [8, 9 + 1 / 3], [-6000, 250], clamp);
+			const paddingBlock = videoType === "short" ? 250 : 50;
+			const highNegative = videoType === "short" ? -6000 : -4200;
+			const a = interpolate(
+				time,
+				[8, 9 + 1 / 3],
+				[highNegative, paddingBlock],
+				clamp,
+			);
 			const convertPosition = ({ x, y }: { x: number; y: number }) => {
+				const xWidth = 780;
 				return {
 					x: interpolate(
 						x,
 						[-1, counts.get(y)!],
-						[150, width - 150],
+						[(width - xWidth) / 2, (width + xWidth) / 2],
 						clamp,
 					),
 					y: interpolate(
 						y,
 						[0, nodes.get("out")!.y],
-						[a, height - 250],
+						[a, height - paddingBlock],
 						// clamp,
 					),
 				};

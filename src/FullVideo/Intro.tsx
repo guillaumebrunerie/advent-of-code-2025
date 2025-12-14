@@ -1,10 +1,4 @@
-import {
-	AbsoluteFill,
-	Html5Audio,
-	Sequence,
-	interpolate,
-	staticFile,
-} from "remotion";
+import { AbsoluteFill, Html5Audio, interpolate, staticFile } from "remotion";
 
 import { FinalFlash } from "../common/Flashes";
 import { Wrapper } from "../common/Wrapper";
@@ -14,14 +8,9 @@ import { clamp, introDuration } from "../constants";
 export const Intro = () => {
 	const time = useCurrentTime();
 
-	const fadeOut = 1;
-
-	const fadeIn = interpolate(time, [1.5, 2], [0, 1], clamp);
-
-	const fadeIn2 = interpolate(time, [3.5, 4], [0, 1], clamp);
-
-	const opacity = fadeIn * fadeOut;
-	const opacity2 = fadeIn2 * fadeOut;
+	const opacity = interpolate(time, [1, 1.5], [0, 1], clamp);
+	const opacity2 = interpolate(time, [3, 3.5], [0, 1], clamp);
+	const opacity3 = interpolate(time, [5, 5.5], [0, 1], clamp);
 
 	return (
 		<Wrapper>
@@ -61,9 +50,23 @@ export const Intro = () => {
 						Guillaume Brunerie
 					</span>
 				</div>
+				<div
+					style={{
+						color: "#CCCCCC",
+						opacity: opacity3,
+					}}
+				>
+					With sound!
+				</div>
 			</AbsoluteFill>
 			<Html5Audio src={staticFile("Intro.wav")} />
 			<FinalFlash dayDuration={introDuration} />
 		</Wrapper>
 	);
 };
+
+/**
+setcps(1)
+
+$: s("bd").gain("<0 .5 .1 .5 .1 .5 .1>")
+ */

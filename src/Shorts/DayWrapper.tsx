@@ -21,6 +21,7 @@ type DayWrapperProps = {
 	children: ReactNode;
 	titleOpacity?: number;
 	style?: CSSProperties;
+	skipFinalFlash?: boolean;
 };
 
 export const DayWrapper = ({
@@ -30,6 +31,7 @@ export const DayWrapper = ({
 	titleOpacity,
 	children,
 	style,
+	skipFinalFlash,
 }: DayWrapperProps) => {
 	const time = useCurrentTime();
 	const progress = time / dayDuration;
@@ -46,8 +48,9 @@ export const DayWrapper = ({
 			)}
 			<InitialFlash />
 			<MidFlash dayDuration={dayDuration} />
-			<FinalFlash dayDuration={dayDuration} />
+			{!skipFinalFlash && <FinalFlash dayDuration={dayDuration} />}
 			<Html5Audio src={staticFile(`Day${day}.wav`)} />
+			<Html5Audio src={staticFile(`Boom.wav`)} />
 		</Wrapper>
 	);
 };

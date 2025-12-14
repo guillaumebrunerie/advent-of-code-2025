@@ -467,7 +467,7 @@ export const Day10 = ({ videoType }: DayProps) => {
 			const patternX = (i: number) =>
 				(width - patternWidth) / 2 +
 				i * (patternWidth / (pattern.length - 1));
-			const patternY = videoType == "short" ? height / 3 : height / 4;
+			const patternY = videoType == "short" ? height / 3 : height / 3;
 			const drawPattern = () => {
 				pattern.forEach((c, i) => {
 					drawLight(patternX(i), patternY, c, litLights[i]);
@@ -476,8 +476,12 @@ export const Day10 = ({ videoType }: DayProps) => {
 			const joltageWidth = 30;
 			const maxJoltage = Math.max(...joltages);
 			const joltageYFactor =
-				interpolate(maxJoltage, [0, 300], [250, 500], clamp) /
-				maxJoltage;
+				interpolate(
+					maxJoltage,
+					[0, 300],
+					[250, videoType == "short" ? 500 : 400],
+					clamp,
+				) / maxJoltage;
 			const drawJoltage = (
 				x: number,
 				y: number,

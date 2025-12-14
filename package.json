@@ -11,10 +11,10 @@
 	"repository": {},
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@remotion/cli": "^4.0.377",
-		"@remotion/google-fonts": "^4.0.377",
-		"@remotion/paths": "^4.0.377",
-		"@remotion/zod-types": "4.0.382",
+		"@remotion/cli": "4.0.377",
+		"@remotion/google-fonts": "4.0.377",
+		"@remotion/paths": "4.0.377",
+		"@remotion/zod-types": "4.0.377",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"remotion": "^4.0.377",
@@ -22,7 +22,7 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@remotion/eslint-config": "^4.0.377",
+		"@remotion/eslint-config": "4.0.377",
 		"@trivago/prettier-plugin-sort-imports": "^6.0.0",
 		"@types/react": "^19.2.6",
 		"@types/web": "^0.0.294",
